@@ -2,6 +2,7 @@ package errs
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/redsift/go-foodfans"
 )
@@ -103,8 +104,12 @@ func (pe *PropagatedError) Retry() bool {
 		return false
 	}
 
+	if pe.Aerospike() {
+		return true
+	}
+
 	switch pe.Code {
-	case Kopitubruk, Macchiato, Turkish, Mocha:
+	case Kopitubruk, Macchiato:
 		return true
 	default:
 		return false
@@ -118,6 +123,11 @@ func (pe *PropagatedError) Aerospike() bool {
 
 	switch pe.Code {
 	case Turkish, Mocha:
+		// Aerospike "Record too big" error is not worth retrying
+		if strings.Contains(pe.Detail, "Record too big") {
+			return false
+		}
+
 		return true
 	default:
 		return false
