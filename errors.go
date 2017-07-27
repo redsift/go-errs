@@ -97,3 +97,29 @@ func (s *PropagatedError) Reason() string {
 func (s *PropagatedError) StatusCode() int {
 	return s.Status
 }
+
+func (pe *PropagatedError) Retry() bool {
+	if pe == nil {
+		return false
+	}
+
+	switch pe.Code {
+	case Kopitubruk, Macchiato, Turkish, Mocha:
+		return true
+	default:
+		return false
+	}
+}
+
+func (pe *PropagatedError) Aerospike() bool {
+	if pe == nil {
+		return false
+	}
+
+	switch pe.Code {
+	case Turkish, Mocha:
+		return true
+	default:
+		return false
+	}
+}
