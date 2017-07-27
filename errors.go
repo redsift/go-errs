@@ -104,7 +104,7 @@ func (pe *PropagatedError) Retry() bool {
 		return false
 	}
 
-	if pe.Aerospike() {
+	if pe.Aerospike() || pe.NodeTimeout() {
 		return true
 	}
 
@@ -132,4 +132,16 @@ func (pe *PropagatedError) Aerospike() bool {
 	default:
 		return false
 	}
+}
+
+func (pe *PropagatedError) NodeTimeout() bool {
+	if pe == nil {
+		return false
+	}
+
+	if pe.Code == Espresso {
+		return true
+	}
+
+	return false
 }
