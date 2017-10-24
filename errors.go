@@ -12,12 +12,12 @@ const (
 	cyan  = "\033[36m"
 )
 
-func WrapErrors(errs []*PropagatedError) *PropagatedError {
+func WrapErrors(errs []*PropagatedError) error {
 	//TODO: Work this through
 	return errs[0]
 }
 
-func WrapWithCode(code InternalState, err error) *PropagatedError {
+func WrapWithCode(code InternalState, err error) error {
 	if err == nil {
 		return nil
 	}
@@ -34,21 +34,21 @@ func WrapWithCode(code InternalState, err error) *PropagatedError {
 	return &PropagatedError{id, code, message, detail, link, nil, 500}
 }
 
-func WrapAsParameterError(param string) *PropagatedError {
-	perr := WrapWithCode(Cappuccino, fmt.Errorf("Parameter error: %q", param))
+func WrapAsParameterError(param string) error {
+	perr := WrapWithCode(Cappuccino, fmt.Errorf("Parameter error: %q", param)).(*PropagatedError)
 	perr.Source = &ErrorSource{"", param}
 	return perr
 }
 
-func WrapAsConfigIssue(err error) *PropagatedError {
+func WrapAsConfigIssue(err error) error {
 	return WrapWithCode(Affogato, err)
 }
 
-func WrapAsAssert(err error) *PropagatedError {
+func WrapAsAssert(err error) error {
 	return WrapWithCode(Yuanyang, err)
 }
 
-func Wrap(err error) *PropagatedError {
+func Wrap(err error) error {
 	return WrapWithCode(stateForErr(err), err)
 }
 
@@ -88,10 +88,12 @@ func (s *ErrorSource) String() string {
 }
 
 func (s *PropagatedError) Error() string {
+	//TODO move color to zaputil
 	return fmt.Sprintf("[id:"+cyan+"%s"+reset+"] %s / %s: %s, %s", s.Id, s.Code, s.Title, s.Detail, s.Source)
 }
 
 func (s *PropagatedError) Reason() string {
+	// TODO remove when color went to zaputil
 	return fmt.Sprintf("[id:%s] %s / %s: %s, %s", s.Id, s.Code, s.Title, s.Detail, s.Source)
 }
 

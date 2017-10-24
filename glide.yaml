@@ -1,3 +1,0 @@
-package: github.com/redsift/go-errs
-import:
-- package: github.com/redsift/go-foodfans
