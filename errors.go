@@ -23,20 +23,7 @@ func RetryWithCounter(err error, counter int) (bool, int, bool) {
 		return false, counter, false
 	}
 
-	if cast.Aerospike() {
-		return true, counter, true
-	}
-
-	if cast.NodeTimeout() {
-		return true, counter +1, true
-	}
-
-	switch cast.Code {
-	case Kopitubruk, Macchiato:
-		return true, counter, false
-	default:
-		return false, counter, false
-	}
+	return cast.RetryWithCounter(counter)
 }
 
 func RetryError(err error) bool {
@@ -212,4 +199,25 @@ func (pe *PropagatedError) NodeTimeout() bool {
 	}
 
 	return false
+}
+
+func (pe *PropagatedError) RetryWithCounter(counter int) (bool, int, bool) {
+	if pe == nil {
+		return false, counter, false
+	}
+
+	if pe.Aerospike() {
+		return true, counter, true
+	}
+
+	if pe.NodeTimeout() {
+		return true, counter +1, true
+	}
+
+	switch pe.Code {
+	case Kopitubruk, Macchiato:
+		return true, counter, false
+	default:
+		return false, counter, false
+	}
 }
