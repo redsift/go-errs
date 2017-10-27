@@ -12,6 +12,72 @@ const (
 	cyan  = "\033[36m"
 )
 
+// RetryWithCounter returns a bool indicating retry, a counter (incremented based on error), a bool indicating retryFlag
+func RetryWithCounter(err error, counter int) (bool, int, bool) {
+	if err == nil {
+		return false, counter, false
+	}
+
+	cast, ok := err.(*PropagatedError)
+	if !ok {
+		return false, counter, false
+	}
+
+	if cast.Aerospike() {
+		return true, counter, true
+	}
+
+	if cast.NodeTimeout() {
+		return true, counter +1, true
+	}
+
+	switch cast.Code {
+	case Kopitubruk, Macchiato:
+		return true, counter, false
+	default:
+		return false, counter, false
+	}
+}
+
+func RetryError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	cast, ok := err.(*PropagatedError)
+	if !ok {
+		return false
+	}
+
+	return cast.Retry()
+}
+
+func AerospikeError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	cast, ok := err.(*PropagatedError)
+	if !ok {
+		return false
+	}
+
+	return cast.Aerospike()
+}
+
+func NodeTimeoutError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	cast, ok := err.(*PropagatedError)
+	if !ok {
+		return false
+	}
+
+	return cast.NodeTimeout()
+}
+
 func WrapErrors(errs []*PropagatedError) error {
 	//TODO: Work this through
 	return errs[0]
