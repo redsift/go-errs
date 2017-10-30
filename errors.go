@@ -12,8 +12,14 @@ const (
 	cyan  = "\033[36m"
 )
 
-// RetryWithCounter returns a bool indicating retry, a counter (incremented based on error), a bool indicating retryFlag
-func RetryWithCounter(err error, counter int) (bool, int, bool) {
+// RetryWithCounter returns a bool indicating retry, a counter (incremented based on error)
+func RetryWithCounter(err error, counter int) (bool, int) {
+	retry, ctr, _ := RetryWithCounterAndFlag(err, counter)
+	return retry, ctr
+}
+
+// RetryWithCounterAndFlag returns a bool indicating retry, a counter (incremented based on error), a bool indicating retryFlag
+func RetryWithCounterAndFlag(err error, counter int) (bool, int, bool) {
 	if err == nil {
 		return false, counter, false
 	}
@@ -23,7 +29,7 @@ func RetryWithCounter(err error, counter int) (bool, int, bool) {
 		return false, counter, false
 	}
 
-	return cast.RetryWithCounter(counter)
+	return cast.RetryWithCounterAndFlag(counter)
 }
 
 func RetryError(err error) bool {
@@ -201,7 +207,16 @@ func (pe *PropagatedError) NodeTimeout() bool {
 	return false
 }
 
-func (pe *PropagatedError) RetryWithCounter(counter int) (bool, int, bool) {
+func (pe *PropagatedError) RetryWithCounter(counter int) (bool, int) {
+	if pe == nil {
+		return false, counter
+	}
+
+	retry, ctr, _ := pe.RetryWithCounterAndFlag(counter)
+	return retry, ctr
+}
+
+func (pe *PropagatedError) RetryWithCounterAndFlag(counter int) (bool, int, bool) {
 	if pe == nil {
 		return false, counter, false
 	}
