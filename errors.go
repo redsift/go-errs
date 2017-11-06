@@ -82,7 +82,9 @@ func WrapWithCode(code InternalState, err error) error {
 	}
 
 	if cast, ok := err.(*PropagatedError); ok {
-		return cast
+		if cast.Code == code {
+			return cast
+		}
 	}
 
 	id := foodfans.New()
