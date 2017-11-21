@@ -12,24 +12,42 @@ const (
 	cyan  = "\033[36m"
 )
 
-// RetryWithCounter returns a bool indicating retry, a counter (incremented based on error)
-func RetryWithCounter(err error, counter int) (bool, int) {
-	retry, ctr, _ := RetryWithCounterAndFlag(err, counter)
+type Retry bool
+type RetryIncrement bool
+type RetryFlag bool
+
+// RetryWithCounter returns a bool indicating retry,
+// and a counter which increments if applicable
+func RetryWithCounter(err error, n int) (Retry, int) {
+	retry, retryIncr, _ := RetryWithIncrementAndFlag(err)
+	ctr := n
+	if bool(retryIncr) {
+		ctr++
+	}
 	return retry, ctr
 }
 
-// RetryWithCounterAndFlag returns a bool indicating retry, a counter (incremented based on error), a bool indicating retryFlag
-func RetryWithCounterAndFlag(err error, counter int) (bool, int, bool) {
+// RetryWithIncrement returns a bool indicating retry,
+// and a bool indicating if the counter should be incremented (based on error)
+func RetryWithIncrement(err error) (Retry, RetryIncrement) {
+	retry, retryIncr, _ := RetryWithIncrementAndFlag(err)
+	return retry, retryIncr
+}
+
+// RetryWithIncrementAndFlag returns a bool indicating retry,
+// a bool indicating if the counter should be incremented (based on error),
+// and a bool indicating retryFlag
+func RetryWithIncrementAndFlag(err error) (Retry, RetryIncrement, RetryFlag) {
 	if err == nil {
-		return false, counter, false
+		return false, false, false
 	}
 
 	cast, ok := err.(*PropagatedError)
 	if !ok {
-		return false, counter, false
+		return false, false, false
 	}
 
-	return cast.RetryWithCounterAndFlag(counter)
+	return cast.RetryWithIncrementAndFlag()
 }
 
 func RetryError(err error) bool {
@@ -209,32 +227,32 @@ func (pe *PropagatedError) NodeTimeout() bool {
 	return false
 }
 
-func (pe *PropagatedError) RetryWithCounter(counter int) (bool, int) {
+func (pe *PropagatedError) RetryWithIncrement() (Retry, RetryIncrement) {
 	if pe == nil {
-		return false, counter
+		return false, false
 	}
 
-	retry, ctr, _ := pe.RetryWithCounterAndFlag(counter)
-	return retry, ctr
+	retry, retryIncr, _ := pe.RetryWithIncrementAndFlag()
+	return retry, retryIncr
 }
 
-func (pe *PropagatedError) RetryWithCounterAndFlag(counter int) (bool, int, bool) {
+func (pe *PropagatedError) RetryWithIncrementAndFlag() (Retry, RetryIncrement, RetryFlag) {
 	if pe == nil {
-		return false, counter, false
+		return false, false, false
 	}
 
 	if pe.Aerospike() {
-		return true, counter, true
+		return true, false, true
 	}
 
 	if pe.NodeTimeout() {
-		return true, counter +1, true
+		return true, true, true
 	}
 
 	switch pe.Code {
 	case Kopitubruk, Macchiato:
-		return true, counter, false
+		return true, false, false
 	default:
-		return false, counter, false
+		return false, false, false
 	}
 }
