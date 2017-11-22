@@ -99,6 +99,22 @@ func (i InternalState) Message() string {
 		return "No Github account for user in JWE"
 	case Antoccino:
 		return "API internal error" // API because message would be delivered to end-user on some branded domain.
+	case Aulait:
+		return "Not found"
+	case Kula:
+		return "Bender internal error"
+	case Melya:
+		return "Chronos internal error"
+	case Marocchino:
+		return "Dagger internal error"
+	case Miel:
+		return "Botfwk internal error"
+	case Mazagran:
+		return "slackstream internal error"
+	case Palazzo:
+		return "jmapstream internal error"
+	case Medici:
+		return "jmaparchive internal error"
 	default:
 		return "Unknown"
 	}
@@ -144,15 +160,15 @@ const (
 	Romano                            // Inbox service reports error
 	Guillermo                         // General Mongo Error
 	Ristretto                         // No Github account for user in JWE
-	Antoccino                         // Kerash (RPC) internal error
-	Aulait
-	Kula
-	Melya
-	Marocchino
-	Miel
-	Mazagran
-	Palazzo
-	Medici
+	Antoccino                         // Kerash (RPC/API) internal error
+	Aulait                            // Not found
+	Kula                              // Bender internal error
+	Melya                             // Chronos internal error
+	Marocchino                        // Dagger internal error
+	Miel                              // Botfwk internal error
+	Mazagran                          // slackstream internal error
+	Palazzo                           // jmapstream internal error
+	Medici                            // jmaparchive internal error
 	Touba
 	Pocillo
 )
