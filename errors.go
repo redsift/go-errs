@@ -185,16 +185,8 @@ func (pe *PropagatedError) Retry() bool {
 		return false
 	}
 
-	if pe.Aerospike() || pe.NodeTimeout() {
-		return true
-	}
-
-	switch pe.Code {
-	case Kopitubruk, Macchiato:
-		return true
-	default:
-		return false
-	}
+	retry, _ := pe.RetryWithIncrement()
+	return bool(retry)
 }
 
 func (pe *PropagatedError) Aerospike() bool {
@@ -213,6 +205,18 @@ func (pe *PropagatedError) Aerospike() bool {
 	default:
 		return false
 	}
+}
+
+func (pe *PropagatedError) Mongo() bool {
+	if pe == nil {
+		return false
+	}
+
+	if pe.Code == Guillermo {
+		return true
+	}
+
+	return false
 }
 
 func (pe *PropagatedError) NodeTimeout() bool {
@@ -242,6 +246,10 @@ func (pe *PropagatedError) RetryWithIncrementAndFlag() (Retry, RetryIncrement, R
 	}
 
 	if pe.Aerospike() {
+		return true, false, true
+	}
+
+	if pe.Mongo() {
 		return true, false, true
 	}
 
