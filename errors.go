@@ -167,6 +167,10 @@ func (s *ErrorSource) String() string {
 }
 
 func (s *PropagatedError) Error() string {
+	if s == nil {
+		return ""
+	}
+
 	//TODO move color to zaputil
 	return fmt.Sprintf("[id:"+cyan+"%s"+reset+"] %s / %s: %s, %s", s.Id, s.Code, s.Title, s.Detail, s.Source)
 }
