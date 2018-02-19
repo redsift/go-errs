@@ -64,7 +64,7 @@ func (i InternalState) Message() string {
 	case Carajillo:
 		return "JWT token valid but upstream invalid and not refreshable"
 	case Espresso:
-		return "DAG node timeout"
+		return "Sift timeout"
 	case Eiskaffee:
 		return "JWT token expired"
 	case Frappuccino:
@@ -143,7 +143,7 @@ const (
 	Mocha                             // Persist Failed Downstream
 	Caphesuada                        // IMAP error
 	Carajillo                         // JWT token valid but upstream invalid and not refreshable
-	Espresso                          // DAG node timeout
+	Espresso                          // Sift timeout
 	Eiskaffee                         // JWT token expired
 	Frappuccino                       // Job buried
 	Iced                              // DAG node reports error
