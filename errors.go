@@ -16,6 +16,19 @@ type Retry bool
 type RetryIncrement bool
 type RetryFlag bool
 
+func IsCode(err error, code InternalState) bool {
+	if err == nil {
+		return false
+	}
+
+	cast, ok := err.(*PropagatedError)
+	if !ok {
+		return false
+	}
+
+	return cast.Code == code
+}
+
 // RetryWithCounter returns a bool indicating retry,
 // and a counter which increments if applicable
 func RetryWithCounter(err error, n int) (Retry, int) {
