@@ -12,6 +12,8 @@ const (
 	cyan  = "\033[36m"
 )
 
+//go:generate msgp -io=false
+//msgp:ignore Retry RetryIncrement RetryFlag
 type Retry bool
 type RetryIncrement bool
 type RetryFlag bool
@@ -153,18 +155,18 @@ func stateForErr(err error) InternalState {
 }
 
 type ErrorSource struct {
-	Pointer   string `json:"pointer"`
-	Parameter string `json:"parameter"`
+	Pointer   string `json:"pointer" msg:"pointer"`
+	Parameter string `json:"parameter" msg:"parameter"`
 }
 
 type PropagatedError struct {
-	Id     string        `json:"id"`
-	Code   InternalState `json:"code"`
-	Title  string        `json:"title"`
-	Detail string        `json:"detail"`
-	Link   string        `json:"link"`
-	Source *ErrorSource  `json:"source"`
-	Status int           `json:"-"`
+	Id     string        `json:"id" msg:"id"`
+	Code   InternalState `json:"code" msg:"code"`
+	Title  string        `json:"title" msg:"title"`
+	Detail string        `json:"detail" msg:"detail"`
+	Link   string        `json:"link" msg:"link"`
+	Source *ErrorSource  `json:"source" msg:"source"`
+	Status int           `json:"-" msg:"-"`
 }
 
 func (s *ErrorSource) String() string {

@@ -4,10 +4,12 @@ import "fmt"
 
 //go:generate stringer -type=InternalState
 //go:generate jsonenums -type=InternalState
+//go:generate msgp -io=false
 
 // Reference the values against https://github.com/redsift/guide/wiki/Error-Code-<InternalState>
 type InternalState int
 
+//msgp:ignore Verb Adjective Noun
 type Verb int
 type Adjective int
 type Noun int
