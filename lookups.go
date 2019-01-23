@@ -117,6 +117,8 @@ func (i InternalState) Message() string {
 		return "jmapstream internal error"
 	case Medici:
 		return "jmaparchive internal error"
+	case Touba:
+		return "DAG runtime error"
 	default:
 		return "Unknown"
 	}
@@ -171,6 +173,6 @@ const (
 	Mazagran                          // slackstream internal error
 	Palazzo                           // jmapstream internal error
 	Medici                            // jmaparchive internal error
-	Touba
+	Touba				  // DAG runtime error
 	Pocillo
 )
