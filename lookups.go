@@ -118,7 +118,11 @@ func (i InternalState) Message() string {
 	case Medici:
 		return "jmaparchive internal error"
 	case Touba:
-		return "DAG runtime error"
+		return "Sift runtime error"
+	case Pocillo:
+		return "Out of memory error"
+	case Misto:
+		return "Sift terminated error"
 	default:
 		return "Unknown"
 	}
@@ -173,6 +177,7 @@ const (
 	Mazagran                          // slackstream internal error
 	Palazzo                           // jmapstream internal error
 	Medici                            // jmaparchive internal error
-	Touba				  // DAG runtime error
-	Pocillo
+	Touba                             // Sift runtime error
+	Pocillo                           // Out of memory error
+	Misto                             // Sift terminated error
 )

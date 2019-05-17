@@ -49,6 +49,17 @@ var (
 		"Guillermo":    Guillermo,
 		"Ristretto":    Ristretto,
 		"Antoccino":    Antoccino,
+		"Aulait":       Aulait,
+		"Kula":         Kula,
+		"Melya":        Melya,
+		"Marocchino":   Marocchino,
+		"Miel":         Miel,
+		"Mazagran":     Mazagran,
+		"Palazzo":      Palazzo,
+		"Medici":       Medici,
+		"Touba":        Touba,
+		"Pocillo":      Pocillo,
+		"Misto":        Misto,
 	}
 
 	_InternalStateValueToName = map[InternalState]string{
@@ -92,6 +103,17 @@ var (
 		Guillermo:    "Guillermo",
 		Ristretto:    "Ristretto",
 		Antoccino:    "Antoccino",
+		Aulait:       "Aulait",
+		Kula:         "Kula",
+		Melya:        "Melya",
+		Marocchino:   "Marocchino",
+		Miel:         "Miel",
+		Mazagran:     "Mazagran",
+		Palazzo:      "Palazzo",
+		Medici:       "Medici",
+		Touba:        "Touba",
+		Pocillo:      "Pocillo",
+		Misto:        "Misto",
 	}
 )
 
@@ -139,6 +161,17 @@ func init() {
 			interface{}(Guillermo).(fmt.Stringer).String():    Guillermo,
 			interface{}(Ristretto).(fmt.Stringer).String():    Ristretto,
 			interface{}(Antoccino).(fmt.Stringer).String():    Antoccino,
+			interface{}(Aulait).(fmt.Stringer).String():       Aulait,
+			interface{}(Kula).(fmt.Stringer).String():         Kula,
+			interface{}(Melya).(fmt.Stringer).String():        Melya,
+			interface{}(Marocchino).(fmt.Stringer).String():   Marocchino,
+			interface{}(Miel).(fmt.Stringer).String():         Miel,
+			interface{}(Mazagran).(fmt.Stringer).String():     Mazagran,
+			interface{}(Palazzo).(fmt.Stringer).String():      Palazzo,
+			interface{}(Medici).(fmt.Stringer).String():       Medici,
+			interface{}(Touba).(fmt.Stringer).String():        Touba,
+			interface{}(Pocillo).(fmt.Stringer).String():      Pocillo,
+			interface{}(Misto).(fmt.Stringer).String():        Misto,
 		}
 	}
 }
