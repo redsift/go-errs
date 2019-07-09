@@ -123,6 +123,8 @@ func (i InternalState) Message() string {
 		return "Out of memory error"
 	case Misto:
 		return "Sift terminated error"
+	case Frappé:
+		return "NATS communication error"
 	default:
 		return "Unknown"
 	}
@@ -180,4 +182,5 @@ const (
 	Touba                             // Sift runtime error
 	Pocillo                           // Out of memory error
 	Misto                             // Sift terminated error
+	Frappé                            // NATS communication error
 )
