@@ -125,10 +125,11 @@ func WrapWithCode(code InternalState, err error) error {
 	detail := err.Error()
 	link := code.LookupURL()
 
-	return &PropagatedError{id, code, message, detail, link, nil, 500}
+	return &PropagatedError{Id: id, Code: code, Title: message, Detail: detail, Link: link, Status: 500, cause: err}
 }
 
 func WrapAsParameterError(param string) error {
+	//goland:noinspection GoTypeAssertionOnErrors
 	perr := WrapWithCode(Cappuccino, fmt.Errorf("Parameter error: %q", param)).(*PropagatedError)
 	perr.Source = &ErrorSource{"", param}
 	return perr
@@ -167,6 +168,7 @@ type PropagatedError struct {
 	Link   string        `json:"link" msg:"link"`
 	Source *ErrorSource  `json:"source" msg:"source"`
 	Status int           `json:"-" msg:"-"`
+	cause  error
 }
 
 func (s *ErrorSource) String() string {
@@ -188,6 +190,11 @@ func (s *PropagatedError) Error() string {
 
 	//TODO move color to zaputil
 	return fmt.Sprintf("[id:"+cyan+"%s"+reset+"] %s / %s: %s, %s", s.Id, s.Code, s.Title, s.Detail, s.Source)
+}
+
+// Unwrap returns the cause of the error if it was wrapped
+func (s *PropagatedError) Unwrap() error {
+	return s.cause
 }
 
 func (s *PropagatedError) Reason() string {
