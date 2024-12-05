@@ -123,6 +123,8 @@ func (i InternalState) Message() string {
 		return "Out of memory error"
 	case Misto:
 		return "Sift terminated error"
+	case Coldbrew:
+		return "Computation disabled by sift state"
 	default:
 		return "Unknown"
 	}
