@@ -180,4 +180,5 @@ const (
 	Touba                             // Sift runtime error
 	Pocillo                           // Out of memory error
 	Misto                             // Sift terminated error
+	Coldbrew                          // Computation disabled by sift state
 )
