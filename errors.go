@@ -7,11 +7,6 @@ import (
 	"github.com/redsift/go-foodfans"
 )
 
-const (
-	reset = "\033[0m"
-	cyan  = "\033[36m"
-)
-
 //go:generate msgp -io=false
 //msgp:ignore Retry RetryIncrement RetryFlag
 type Retry bool
