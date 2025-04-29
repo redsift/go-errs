@@ -7,11 +7,6 @@ import (
 	"github.com/redsift/go-foodfans"
 )
 
-const (
-	reset = "\033[0m"
-	cyan  = "\033[36m"
-)
-
 //go:generate msgp -io=false
 //msgp:ignore Retry RetryIncrement RetryFlag
 type Retry bool
@@ -188,18 +183,12 @@ func (s *PropagatedError) Error() string {
 		return ""
 	}
 
-	//TODO move color to zaputil
-	return fmt.Sprintf("[id:"+cyan+"%s"+reset+"] %s / %s: %s, %s", s.Id, s.Code, s.Title, s.Detail, s.Source)
+	return fmt.Sprintf("[id:%s] %s / %s: %s, %s", s.Id, s.Code, s.Title, s.Detail, s.Source)
 }
 
 // Unwrap returns the cause of the error if it was wrapped
 func (s *PropagatedError) Unwrap() error {
 	return s.cause
-}
-
-func (s *PropagatedError) Reason() string {
-	// TODO remove when color went to zaputil
-	return fmt.Sprintf("[id:%s] %s / %s: %s, %s", s.Id, s.Code, s.Title, s.Detail, s.Source)
 }
 
 func (s *PropagatedError) StatusCode() int {
