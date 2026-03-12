@@ -125,6 +125,8 @@ func (i InternalState) Message() string {
 		return "Sift terminated error"
 	case Coldbrew:
 		return "Computation disabled by sift state"
+	case Caro:
+		return "Account is dead, unknown or soft-deleted"
 	default:
 		return "Unknown"
 	}
@@ -183,4 +185,5 @@ const (
 	Pocillo                           // Out of memory error
 	Misto                             // Sift terminated error
 	Coldbrew                          // Computation disabled by sift state
+	Caro                              // Account is dead, unknown or soft-deleted
 )
