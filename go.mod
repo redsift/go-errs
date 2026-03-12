@@ -1,6 +1,6 @@
 module github.com/redsift/go-errs
 
-go 1.21
+go 1.26.1
 
 require (
 	github.com/redsift/go-foodfans v1.0.4
