@@ -7,7 +7,7 @@ import (
 	"github.com/redsift/go-foodfans"
 )
 
-//go:generate msgp -io=false
+//go:generate go tool msgp -io=false
 //msgp:ignore Retry RetryIncrement RetryFlag
 type Retry bool
 type RetryIncrement bool

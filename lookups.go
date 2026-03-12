@@ -2,9 +2,9 @@ package errs
 
 import "fmt"
 
-//go:generate stringer -type=InternalState
-//go:generate jsonenums -type=InternalState
-//go:generate msgp -io=false
+//go:generate go tool stringer -type=InternalState
+//go:generate go tool jsonenums -type=InternalState
+//go:generate go tool msgp -io=false
 
 // Reference the values against https://github.com/redsift/guide/wiki/Error-Code-<InternalState>
 type InternalState int
