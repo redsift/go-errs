@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/redsift/go-foodfans"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 //go:generate go tool msgp -io=false
@@ -193,6 +194,21 @@ func (s *PropagatedError) Unwrap() error {
 
 func (s *PropagatedError) StatusCode() int {
 	return s.Status
+}
+
+// Attributes returns OpenTelemetry attributes for this error.
+// It always includes the error code as "redsift.error.code" and
+// includes "http.status_code" when Status is non-zero.
+func (s *PropagatedError) Attributes() []attribute.KeyValue {
+	if s == nil {
+		return nil
+	}
+	attrs := make([]attribute.KeyValue, 0, 2)
+	attrs = append(attrs, attribute.String("redsift.error.code", s.Code.String()))
+	if s.Status != 0 {
+		attrs = append(attrs, attribute.Int("http.status_code", s.Status))
+	}
+	return attrs
 }
 
 func (pe *PropagatedError) Retry() bool {
