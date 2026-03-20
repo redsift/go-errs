@@ -3,6 +3,7 @@ package errs
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 
 	"go.opentelemetry.io/otel/attribute"
@@ -21,7 +22,7 @@ func TestErrorWithAttributes_Error(t *testing.T) {
 		t.Fatal("expected error message to include attributes")
 	}
 	for _, want := range []string{"something broke", "key1", "val1", "longer_key", "42"} {
-		if !contains(msg, want) {
+		if !strings.Contains(msg, want) {
 			t.Errorf("error message %q missing %q", msg, want)
 		}
 	}
@@ -283,17 +284,4 @@ func TestGatherAttributesRecursive_FmtWrapped(t *testing.T) {
 	if attrs[0].Key != "k" {
 		t.Errorf("attrs[0].Key = %q, want k", attrs[0].Key)
 	}
-}
-
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) && searchString(s, substr)
-}
-
-func searchString(s, substr string) bool {
-	for i := range len(s) - len(substr) + 1 {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
 }
