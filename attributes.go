@@ -60,3 +60,20 @@ func WrapWithAttributes(err error, attrs ...attribute.KeyValue) error {
 		attributes: attrs,
 	}
 }
+
+// GatherAttributesRecursive walks the full error chain (including [errors.Join] trees)
+// and collects [attribute.KeyValue] from every error implementing [ErrorWithAttributes].
+// Attributes are returned bottom-up: innermost errors first, outermost last.
+func GatherAttributesRecursive(err error) (attrs []attribute.KeyValue) {
+	if u, ok := err.(interface{ Unwrap() []error }); ok {
+		for _, one := range u.Unwrap() {
+			attrs = append(attrs, GatherAttributesRecursive(one)...)
+		}
+	} else if u, ok := err.(interface{ Unwrap() error }); ok {
+		attrs = append(attrs, GatherAttributesRecursive(u.Unwrap())...)
+	}
+	if aerr, ok := err.(ErrorWithAttributes); ok {
+		attrs = append(attrs, aerr.Attributes()...)
+	}
+	return attrs
+}
