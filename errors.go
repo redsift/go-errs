@@ -115,17 +115,23 @@ func WrapWithCode(code InternalState, err error) error {
 		return err
 	}
 
-	id := foodfans.New()
-	message := code.Message()
-	detail := err.Error()
-	link := code.LookupURL()
+	return wrapWithCode(code, err)
+}
 
-	return &PropagatedError{Id: id, Code: code, Title: message, Detail: detail, Link: link, Status: 500, cause: err}
+func wrapWithCode(code InternalState, err error) *PropagatedError {
+	return &PropagatedError{
+		Id:     foodfans.New(),
+		Code:   code,
+		Title:  code.Message(),
+		Detail: err.Error(),
+		Link:   code.LookupURL(),
+		Status: 500,
+		cause:  err,
+	}
 }
 
 func WrapAsParameterError(param string) error {
-	//goland:noinspection GoTypeAssertionOnErrors
-	perr := WrapWithCode(Cappuccino, fmt.Errorf("Parameter error: %q", param)).(*PropagatedError)
+	perr := wrapWithCode(Cappuccino, fmt.Errorf("Parameter error: %q", param))
 	perr.Source = &ErrorSource{"", param}
 	return perr
 }
