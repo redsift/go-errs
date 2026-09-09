@@ -1,6 +1,7 @@
 package errs
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -19,7 +20,7 @@ func IsCode(err error, code InternalState) bool {
 		return false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false
 	}
@@ -53,7 +54,7 @@ func RetryWithIncrementAndFlag(err error) (Retry, RetryIncrement, RetryFlag) {
 		return false, false, false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false, false, false
 	}
@@ -66,7 +67,7 @@ func RetryError(err error) bool {
 		return false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false
 	}
@@ -79,7 +80,7 @@ func AerospikeError(err error) bool {
 		return false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false
 	}
@@ -92,7 +93,7 @@ func NodeTimeoutError(err error) bool {
 		return false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false
 	}
@@ -110,10 +111,8 @@ func WrapWithCode(code InternalState, err error) error {
 		return nil
 	}
 
-	if cast, ok := err.(*PropagatedError); ok {
-		if cast.Code == code {
-			return cast
-		}
+	if cast, ok := errors.AsType[*PropagatedError](err); ok && cast.Code == code {
+		return err
 	}
 
 	id := foodfans.New()

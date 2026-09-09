@@ -13,7 +13,7 @@ func Errorf(format string, args ...any) error {
 		if !ok {
 			continue
 		}
-		perr, ok = err.(*PropagatedError)
+		perr, ok = errors.AsType[*PropagatedError](err)
 		if !ok {
 			continue
 		}
