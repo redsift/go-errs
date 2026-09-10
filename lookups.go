@@ -127,6 +127,8 @@ func (i InternalState) Message() string {
 		return "Computation disabled by sift state"
 	case Caro:
 		return "Account is dead, unknown or soft-deleted"
+	case Lungo:
+		return "TTL exceeded"
 	default:
 		return "Unknown"
 	}
@@ -186,4 +188,5 @@ const (
 	Misto                             // Sift terminated error
 	Coldbrew                          // Computation disabled by sift state
 	Caro                              // Account is dead, unknown or soft-deleted
+	Lungo                             // TTL exceeded
 )

@@ -62,6 +62,7 @@ var (
 		"Misto":        Misto,
 		"Coldbrew":     Coldbrew,
 		"Caro":         Caro,
+		"Lungo":        Lungo,
 	}
 
 	_InternalStateValueToName = map[InternalState]string{
@@ -118,6 +119,7 @@ var (
 		Misto:        "Misto",
 		Coldbrew:     "Coldbrew",
 		Caro:         "Caro",
+		Lungo:        "Lungo",
 	}
 )
 
@@ -178,6 +180,7 @@ func init() {
 			interface{}(Misto).(fmt.Stringer).String():        Misto,
 			interface{}(Coldbrew).(fmt.Stringer).String():     Coldbrew,
 			interface{}(Caro).(fmt.Stringer).String():         Caro,
+			interface{}(Lungo).(fmt.Stringer).String():        Lungo,
 		}
 	}
 }

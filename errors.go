@@ -330,6 +330,8 @@ func (pe *PropagatedError) RetryWithIncrementAndFlag() (Retry, RetryIncrement, R
 		return true, false, false
 	case Flatwhite: // service shutting down, request _may_ have been visible to the service
 		return true, false, true
+	case Lungo: // deadline exceeded, work _may_ have partially run
+		return true, true, true
 	default:
 		return false, false, false
 	}
