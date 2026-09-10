@@ -321,8 +321,15 @@ func (pe *PropagatedError) RetryWithIncrementAndFlag() (Retry, RetryIncrement, R
 	}
 
 	switch pe.Code {
-	case Kopitubruk, Macchiato:
+	case
+		Bicerin,    // overloaded
+		Kopitubruk, // nanomsg transport error
+		Latte,      // service shutting down
+		Macchiato,  // explicit retry requested
+		Mochasippi: // service unavailable
 		return true, false, false
+	case Flatwhite: // service shutting down, request _may_ have been visible to the service
+		return true, false, true
 	default:
 		return false, false, false
 	}
