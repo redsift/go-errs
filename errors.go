@@ -11,9 +11,9 @@ import (
 
 //go:generate go tool msgp -io=false
 //msgp:ignore Retry RetryIncrement RetryFlag
-type Retry bool
-type RetryIncrement bool
-type RetryFlag bool
+type Retry bool          // error is retryable
+type RetryIncrement bool // error should result in consuming a retry attempt
+type RetryFlag bool      // retry should be made visible to the sift
 
 func IsCode(err error, code InternalState) bool {
 	if err == nil {
