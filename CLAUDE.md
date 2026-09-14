@@ -15,6 +15,9 @@ go test -run TestMarshalUnmarshalPropagatedError .
 go generate ./...
 ```
 
+The generators (`msgp`, `stringer`, `jsonenums`) are declared as `tool` dependencies in
+`go.mod` and invoked as `go tool <name>`, so `go generate ./...` needs no separate install.
+
 ## Architecture
 
 This is a single-package Go library (`github.com/redsift/go-errs`, package `errs`) that provides a structured error type for use across redsift services.
@@ -27,6 +30,26 @@ This is a single-package Go library (`github.com/redsift/go-errs`, package `errs
 - `Title`, `Detail`, `Link`, `Source` — human-readable and structured context
 - `Status` — HTTP status code (not serialized)
 - `cause` — unexported wrapped error (accessible via `Unwrap()`)
+
+It also implements `ErrorWithAttributes` (see below) and `StatusCode() int`.
+
+### OpenTelemetry attributes
+
+`attributes.go` adds an orthogonal wrapper for attaching `attribute.KeyValue` context to any
+error:
+
+- `ErrorWithAttributes` — `error` + `Attributes() []attribute.KeyValue`
+- `WrapWithAttributes(err, attrs...)` — nests a new attribute layer (it does **not** merge with
+  an existing one); returns `err` unchanged when `err` is nil or no attributes are given
+- `GatherAttributesRecursive(err)` — walks the whole chain, including `errors.Join` trees,
+  and returns attributes innermost-first
+- `PropagatedError.Attributes()` — always `redsift.error.code`, plus `http.status_code` when
+  `Status` is non-zero
+
+### Error inspection convention
+
+Type assertions on errors use `errors.AsType[*PropagatedError](err)` (Go 1.26), not
+`errors.As` with a declared target variable. Keep new code consistent with that.
 
 ### `InternalState` enum
 
@@ -51,4 +74,6 @@ Run `go generate ./...` after any change to `InternalState` constants or the `Pr
 - `IsCode(err, code)` — checks if an error has a specific `InternalState`
 - `Errorf(format, args...)` — like `fmt.Errorf` but propagates `PropagatedError` identity when an error arg is a `*PropagatedError`
 - `PostProcessJsonError(data, err)` — enriches JSON parse errors with source location context
+- `WrapWithAttributes(err, attrs...)` / `GatherAttributesRecursive(err)` — OpenTelemetry
+  attribute context
 - `NotYetImplemented(feature)` — returns a lightweight `nyiError` (not a `PropagatedError`)

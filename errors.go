@@ -1,6 +1,7 @@
 package errs
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -10,21 +11,48 @@ import (
 
 //go:generate go tool msgp -io=false
 //msgp:ignore Retry RetryIncrement RetryFlag
-type Retry bool
-type RetryIncrement bool
-type RetryFlag bool
+type Retry bool          // error is retryable
+type RetryIncrement bool // error should result in consuming a retry attempt
+type RetryFlag bool      // retry should be made visible to the sift
 
 func IsCode(err error, code InternalState) bool {
 	if err == nil {
 		return false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false
 	}
 
 	return cast.Code == code
+}
+
+// ContainsCode reports whether any error in err's chain, including [errors.Join]
+// trees, is a [PropagatedError] with the given code. Unlike [IsCode], which only
+// inspects the outermost [PropagatedError], a code that has since been wrapped
+// under a different one is still found.
+func ContainsCode(err error, code InternalState) (found bool) {
+	visitRecursive(err, func(cast *PropagatedError) bool {
+		found = found || cast.Code == code
+		return !found
+	})
+	return found
+}
+
+// CollectCodes returns the code of every [PropagatedError] in err's chain,
+// including [errors.Join] trees, outermost first. Codes are not deduplicated,
+// so a code applied at several layers appears several times. The result is nil
+// when err carries no [PropagatedError].
+func CollectCodes(err error) (out []InternalState) {
+	if err == nil {
+		return nil
+	}
+	visitRecursive(err, func(err *PropagatedError) bool {
+		out = append(out, err.Code)
+		return true
+	})
+	return
 }
 
 // RetryWithCounter returns a bool indicating retry,
@@ -53,7 +81,7 @@ func RetryWithIncrementAndFlag(err error) (Retry, RetryIncrement, RetryFlag) {
 		return false, false, false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false, false, false
 	}
@@ -66,7 +94,7 @@ func RetryError(err error) bool {
 		return false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false
 	}
@@ -79,7 +107,7 @@ func AerospikeError(err error) bool {
 		return false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false
 	}
@@ -92,7 +120,7 @@ func NodeTimeoutError(err error) bool {
 		return false
 	}
 
-	cast, ok := err.(*PropagatedError)
+	cast, ok := errors.AsType[*PropagatedError](err)
 	if !ok {
 		return false
 	}
@@ -110,23 +138,27 @@ func WrapWithCode(code InternalState, err error) error {
 		return nil
 	}
 
-	if cast, ok := err.(*PropagatedError); ok {
-		if cast.Code == code {
-			return cast
-		}
+	if cast, ok := errors.AsType[*PropagatedError](err); ok && cast.Code == code {
+		return err
 	}
 
-	id := foodfans.New()
-	message := code.Message()
-	detail := err.Error()
-	link := code.LookupURL()
+	return wrapWithCode(code, err)
+}
 
-	return &PropagatedError{Id: id, Code: code, Title: message, Detail: detail, Link: link, Status: 500, cause: err}
+func wrapWithCode(code InternalState, err error) *PropagatedError {
+	return &PropagatedError{
+		Id:     foodfans.New(),
+		Code:   code,
+		Title:  code.Message(),
+		Detail: err.Error(),
+		Link:   code.LookupURL(),
+		Status: 500,
+		cause:  err,
+	}
 }
 
 func WrapAsParameterError(param string) error {
-	//goland:noinspection GoTypeAssertionOnErrors
-	perr := WrapWithCode(Cappuccino, fmt.Errorf("Parameter error: %q", param)).(*PropagatedError)
+	perr := wrapWithCode(Cappuccino, fmt.Errorf("Parameter error: %q", param))
 	perr.Source = &ErrorSource{"", param}
 	return perr
 }
@@ -289,9 +321,40 @@ func (pe *PropagatedError) RetryWithIncrementAndFlag() (Retry, RetryIncrement, R
 	}
 
 	switch pe.Code {
-	case Kopitubruk, Macchiato:
+	case
+		Bicerin,    // overloaded
+		Kopitubruk, // nanomsg transport error
+		Latte,      // service shutting down
+		Macchiato,  // explicit retry requested
+		Mochasippi: // service unavailable
 		return true, false, false
+	case Flatwhite: // service shutting down, request _may_ have been visible to the service
+		return true, false, true
+	case Lungo: // deadline exceeded, work _may_ have partially run
+		return true, true, true
 	default:
 		return false, false, false
 	}
+}
+
+func visitRecursive[T error](err error, visitor func(T) bool) bool {
+	if cast, ok := err.(T); ok {
+		if !visitor(cast) {
+			return false
+		}
+	}
+
+	switch e := err.(type) {
+	case interface{ Unwrap() error }:
+		return visitRecursive(e.Unwrap(), visitor)
+
+	case interface{ Unwrap() []error }:
+		for _, err := range e.Unwrap() {
+			if !visitRecursive(err, visitor) {
+				return false
+			}
+		}
+	}
+
+	return true
 }
